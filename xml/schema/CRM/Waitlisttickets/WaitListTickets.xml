@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<table>
+  <base>CRM/Waitlisttickets</base>
+  <class>WaitListTickets</class>
+  <name>civicrm_wait_list_tickets</name>
+  <comment>FIXME</comment>
+  <log>true</log>
+
+  <field>
+    <name>id</name>
+    <type>int unsigned</type>
+    <required>true</required>
+    <comment>Unique WaitListTickets ID</comment>
+  </field>
+  <primaryKey>
+    <name>id</name>
+    <autoincrement>true</autoincrement>
+  </primaryKey>
+
+  <field>
+    <name>event_id</name>
+    <type>int unsigned</type>
+    <comment>FK to Event</comment>
+  </field>
+  <foreignKey>
+    <name>event_id</name>
+    <table>civicrm_event</table>
+    <key>id</key>
+    <onDelete>CASCADE</onDelete>
+  </foreignKey>
+
+  <field>
+    <name>participant_id</name>
+    <type>int unsigned</type>
+    <comment>FK to Participant</comment>
+  </field>
+  <foreignKey>
+    <name>participant_id</name>
+    <table>civicrm_participant</table>
+    <key>id</key>
+    <onDelete>CASCADE</onDelete>
+  </foreignKey>
+
+  <field>
+    <name>price_field_id</name>
+    <type>int unsigned</type>
+    <comment>FK to Price Field</comment>
+  </field>
+  <foreignKey>
+    <name>price_field_id</name>
+    <table>civicrm_price_field</table>
+    <key>id</key>
+    <onDelete>CASCADE</onDelete>
+  </foreignKey>
+
+  <field>
+    <name>price_field_value_id</name>
+    <type>int unsigned</type>
+    <comment>FK to Price Field Value</comment>
+  </field>
+  <foreignKey>
+    <name>price_field_id</name>
+    <table>civicrm_price_field_value</table>
+    <key>id</key>
+    <onDelete>CASCADE</onDelete>
+  </foreignKey>
+
+  <field>
+    <name>qty</name>
+    <type>int unsigned</type>
+    <comment>Number of tickets required</comment>
+  </field>
+
+  <field>
+    <name>participant_count</name>
+    <type>int unsigned</type>
+    <comment>Number of participants</comment>
+  </field>
+
+</table>
