@@ -23,4 +23,38 @@ class CRM_Waitlisttickets_BAO_WaitListTickets extends CRM_Waitlisttickets_DAO_Wa
     return $instance;
   } */
 
+  public static function addWaitlist($params) {
+    $waitlist = new CRM_Waitlisttickets_DAO_WaitListTickets();
+    $waitlist->copyValues($params);
+    $waitlist->save();
+  }
+
+  public static function getWaitlistTickets($pid) {
+    $waitlist = new CRM_Waitlisttickets_DAO_WaitListTickets();
+    $waitlist->participant_id = $pid;
+    $waitlist->find();
+    $priceDetails = "";
+    $totalCount = 0;
+    // We construct details of the number of selected tickets to display as Fee level.
+    while ($waitlist->fetch()) {
+      $pricelabel = CRM_Core_DAO::singleValueQuery("SELECT label
+        FROM civicrm_price_field
+        WHERE id = %1", [1 => [$waitlist->price_field_id, 'Integer']]);
+      $priceDetails .= "<span style='color:#ff5854'>" . $pricelabel . " - " . $waitlist->participant_count;
+      $priceDetails .= "<br/>";
+      $totalCount = $totalCount + $waitlist->participant_count;
+    }
+    if (!empty($priceDetails)) {
+      $priceDetails .= "Participant Count - " . $totalCount . "</span>";
+    }
+    return $priceDetails;
+  }
+
+  public static function deleteWaitlist($pid) {
+    $waitlist = new CRM_Waitlisttickets_DAO_WaitListTickets();
+    $waitlist->participant_id = $pid;
+    $waitlist->find(TRUE);
+    $waitlist->delete();
+  }
+
 }

@@ -154,8 +154,8 @@
       if (!empty($priceFields)) {
         foreach ($priceFields as $priceField) {
           $key = "price_field_id_" . $priceField["id"];
-          $fieldOptions = [];
-          if ($priceField["html_type"] == "Select") {
+          $selectOptions = [];
+          if (in_array($priceField["html_type"], ["Select", "Radio", "CheckBox"])) {
             $fieldOptions = (array) civicrm_api3("PriceFieldValue", "get", [
               "price_field_id" => $priceField["id"],
               "return" => ["name", "label"],
@@ -177,6 +177,74 @@
     }
   }
 
+  function waitlisttickets_civicrm_post($op, $objectName, $objectId, &$objectRef) {
+    if ($op == "delete" && $objectName == "Participant") {
+      CRM_Waitlisttickets_BAO_WaitListTickets::deleteWaitlist($objectId);
+    }
+  }
+
+  /**
+   * Implementation of hook_civicrm_postProcess
+   *
+   * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_postProcess
+   */
+  function waitlisttickets_civicrm_postProcess($formName, &$form) {
+    if ($formName == "CRM_Event_Form_Registration_Confirm" && $form->_allowWaitlist) {
+      $params = $form->getVar('_params');
+
+      $priceFields = getPriceFieldInfo($form->_eventId);
+      $priceParams = [];
+      if (!empty($priceFields)) {
+        foreach ($priceFields as $priceField) {
+          if (!empty($params['price_field_id_' . $priceField['id']])) {
+            if (in_array($priceField["html_type"], ["Select", "Radio", "CheckBox"])) {
+              // We get the participant count of the price field value.
+              $sql = CRM_Core_DAO::executeQuery("SELECT id, count FROM civicrm_price_field_value WHERE name = %1 AND price_field_id = %2",
+                [1 => [$params["price_field_id_" . $priceField["id"]], "Integer"], 2 => [$priceField["id"], "Integer"]])->fetchAll();
+              if (!empty($sql[0])) {
+                $priceParams[] = [
+                  'price_field_id' => $priceField['id'],
+                  'price_field_value_id' => $sql[0]['id'],
+                  'participant_count' => $sql[0]['count'],
+                  'event_id' => $form->getVar('_eventId'),
+                  'participant_id' => $form->getVar('_participantId'),
+                ];
+              }
+            }
+            else {
+              $priceParams[] = [
+                'price_field_id' => $priceField['id'],
+                'price_field_value_id' => CRM_Core_DAO::singleValueQuery("SELECT id FROM civicrm_price_field_value WHERE price_field_id = %1", [1 => [$priceField['id'], 'Integer']]),
+                'participant_count' => $params['price_field_id_' . $priceField['id']],
+                'event_id' => $form->getVar('_eventId'),
+                'participant_id' => $form->getVar('_participantId'),
+              ];
+            }
+          }
+        }
+      }
+      if (!empty($priceParams)) {
+        foreach ($priceParams as $priceParam) {
+          CRM_Waitlisttickets_BAO_WaitListTickets::addWaitlist($priceParam);
+        }
+      }
+    }
+  }
+
+  function waitlisttickets_civicrm_searchColumns($objectName, &$headers, &$rows, &$selector) {
+    if ($objectName == 'event' && !empty($rows)) {
+      $statusTypes = CRM_Event_PseudoConstant::participantStatus();
+      foreach ($rows as &$row) {
+        if (in_array($statusTypes[$row['participant_status_id']], ["On waitlist", "Pending from waitlist"])) {
+          $waitlist = CRM_Waitlisttickets_BAO_WaitListTickets::getWaitlistTickets($row['participant_id']);
+          if (!empty($waitlist)) {
+            $row['participant_fee_level'] = $waitlist;
+          }
+        }
+      }
+    }
+  }
+
   function getPriceFieldInfo($eventId) {
     $priceSetId = CRM_Price_BAO_PriceSet::getFor('civicrm_event', $eventId);
     if (!$priceSetId) {
@@ -186,12 +254,13 @@
       'sequential' => 1,
       'return' => ["label", "html_type", "id"],
       'price_set_id' => $priceSetId,
+      'is_active' => 1,
     ])['values'];
     if (empty($priceFields)) {
       return FALSE;
     }
     return $priceFields;
-    }
+  }
 
   // --- Functions below this ship commented out. Uncomment as required. ---
 
