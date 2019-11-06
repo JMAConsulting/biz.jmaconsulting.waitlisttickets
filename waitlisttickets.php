@@ -164,6 +164,7 @@
               foreach ($fieldOptions as $fieldOption) {
                 $selectOptions[$fieldOption['name']] = $fieldOption['label'];
               }
+              $selectOptions = array_merge($selectOptions, [0 => ts('None')]);
             }
           }
           $form->add($priceField["html_type"], $key, ts($priceField['label']), $selectOptions);
