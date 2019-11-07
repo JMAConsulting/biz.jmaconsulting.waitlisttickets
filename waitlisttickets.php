@@ -153,6 +153,11 @@
       $priceFields = getPriceFieldInfo($form->_eventId);
       if (!empty($priceFields)) {
         foreach ($priceFields as $priceField) {
+          // We check if the price field has a limit specified.
+          $isAllowed = CRM_Core_DAO::singleValueQuery("SELECT max_value FROM civicrm_max_tickets WHERE price_field_id = %1 AND event_id = %2", [1 => [$priceField["id"], "Integer"], 2 => [$form->_eventId, "Integer"]]);
+          if ($isAllowed === '0') {
+            continue;
+          }
           $key = "price_field_id_" . $priceField["id"];
           $selectOptions = [];
           if (in_array($priceField["html_type"], ["Select", "Radio", "CheckBox"])) {
