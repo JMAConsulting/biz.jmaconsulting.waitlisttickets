@@ -1,4 +1,4 @@
-  <?php
+<?php
 
   require_once 'waitlisttickets.civix.php';
   use CRM_Waitlisttickets_ExtensionUtil as E;
