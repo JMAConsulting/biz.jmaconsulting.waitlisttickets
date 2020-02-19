@@ -169,7 +169,7 @@
               foreach ($fieldOptions as $fieldOption) {
                 $selectOptions[$fieldOption['name']] = $fieldOption['label'];
               }
-              $selectOptions = array_merge($selectOptions, [0 => ts('None')]);
+              $selectOptions = $selectOptions + [0 => ts('None')];
             }
           }
           if ($priceField["html_type"] == "Radio") {
