@@ -172,13 +172,37 @@
               $selectOptions = array_merge($selectOptions, [0 => ts('None')]);
             }
           }
-          $form->add($priceField["html_type"], $key, ts($priceField['label']), $selectOptions);
+          if ($priceField["html_type"] == "Radio") {
+            $form->addRadio($key, ts($priceField['label']), $selectOptions);
+          }
+          else {
+            $form->add($priceField["html_type"], $key, ts($priceField['label']), $selectOptions);
+          }
           $ticketOptions[] = $key;
         }
-        $form->assign('ticketOptions', $ticketOptions);
-        CRM_Core_Region::instance('page-body')->add(array(
-          'template' => 'CRM/WaitlistPriceFields.tpl',
-        ));
+        if (!empty($ticketOptions)) {
+          $form->assign('ticketOptions', $ticketOptions);
+          $form->_ticketOptions = $ticketOptions;
+          CRM_Core_Region::instance('page-body')->add(array(
+            'template' => 'CRM/WaitlistPriceFields.tpl',
+          ));
+        }
+      }
+    }
+  }
+
+  function waitlisttickets_civicrm_validateForm($formName, &$fields, &$files, &$form, &$errors) {
+    if ($formName == "CRM_Event_Form_Registration_Register" && $form->_allowWaitlist && !empty($form->_ticketOptions)) {
+      // Check to see if atleast one ticketing option is selected.
+      $flag = TRUE;
+      foreach ($form->_ticketOptions as $option) {
+        if (!empty($fields[$option])) {
+          $flag = FALSE;
+          break;
+        }
+      }
+      if ($flag) {
+        $errors['_qf_default'] = ts("Please select atleast one of the ticket options");
       }
     }
   }
@@ -206,7 +230,7 @@
             if (in_array($priceField["html_type"], ["Select", "Radio", "CheckBox"])) {
               // We get the participant count of the price field value.
               $sql = CRM_Core_DAO::executeQuery("SELECT id, count FROM civicrm_price_field_value WHERE name = %1 AND price_field_id = %2",
-                [1 => [$params["price_field_id_" . $priceField["id"]], "Integer"], 2 => [$priceField["id"], "Integer"]])->fetchAll();
+                [1 => [$params["price_field_id_" . $priceField["id"]], "String"], 2 => [$priceField["id"], "Integer"]])->fetchAll();
               if (!empty($sql[0])) {
                 $priceParams[] = [
                   'price_field_id' => $priceField['id'],
