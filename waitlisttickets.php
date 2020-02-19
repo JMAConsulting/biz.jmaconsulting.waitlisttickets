@@ -141,6 +141,18 @@
     _waitlisttickets_civix_civicrm_themes($themes);
   }
 
+  function waitlisttickets_civicrm_alterReportVar($type, &$vars, &$form) {
+    if ('CRM_AOReports_Form_Report_ExtendedParticipantListing' == get_class($form)) {
+      if ($type == 'rows') {
+        foreach ($vars as &$var) {
+          if (!empty($var['civicrm_participant_participant_record']) && empty($var['civicrm_participant_participant_fee_level'])) {
+            $var['civicrm_participant_participant_fee_level'] = CRM_Waitlisttickets_BAO_WaitListTickets::getWaitlistTickets($var['civicrm_participant_participant_record']);
+          }
+        }
+      }
+    }
+  }
+
   /**
    * Implementation of hook_civicrm_buildForm
    *
