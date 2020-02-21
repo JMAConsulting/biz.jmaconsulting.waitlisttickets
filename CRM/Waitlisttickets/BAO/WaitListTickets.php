@@ -29,6 +29,17 @@ class CRM_Waitlisttickets_BAO_WaitListTickets extends CRM_Waitlisttickets_DAO_Wa
     $waitlist->save();
   }
 
+  public static function setWaitlistTickets($pid) {
+    $waitlist = new CRM_Waitlisttickets_DAO_WaitListTickets();
+    $waitlist->participant_id = $pid;
+    $waitlist->find();
+    $selectedTickets = [];
+    while ($waitlist->fetch()) {
+      $selectedTickets['price_' . $waitlist->price_field_id] = $waitlist->price_field_value_id;  
+    }
+    return $selectedTickets;
+  }
+
   public static function getWaitlistTickets($pid) {
     $waitlist = new CRM_Waitlisttickets_DAO_WaitListTickets();
     $waitlist->participant_id = $pid;

@@ -159,6 +159,31 @@
    * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_buildForm
    */
   function waitlisttickets_civicrm_buildForm($formName, &$form) {
+    if ($formName == "CRM_Event_Form_Registration_Register" && !empty($form->getVar('_participantId'))) {
+      // This is a waitlisted registration.
+      $defaults = CRM_Waitlisttickets_BAO_WaitListTickets::setWaitlistTickets($form->getVar('_participantId'));
+      $priceInfo = getPriceFieldInfo($form->_eventId);
+      $priceSetId = CRM_Price_BAO_PriceSet::getFor('civicrm_event', $form->_eventId);
+      if (!empty($priceSetId)) {
+        $childPrice = CRM_Core_DAO::executeQuery("SELECT id FROM civicrm_price_field WHERE name LIKE '%Child%' AND price_set_id = %1", [1 => [$priceSetId, "Integer"]])->fetchAll()[0]['id'];
+      }
+      if (!empty($childPrice)) {
+        if (array_key_exists('price_' . $childPrice, $defaults)) {
+          $childPrice = CRM_Core_DAO::singleValueQuery("SELECT participant_count FROM civicrm_wait_list_tickets WHERE participant_id = %1 AND price_field_id = %2",
+            [1 => [$form->getVar('_participantId'), "Integer"], 2 => [$childPrice, "Integer"]]);
+        }
+        $form->assign('waitlistchild', $childPrice);
+      }
+      if (!empty($priceInfo)) {
+        foreach ($priceInfo as $priceField) {
+          $freeze[] = 'price_' . $priceField['id'];
+        }
+        $form->freeze($freeze);
+      }
+      if (!empty($defaults)) {
+        $form->setDefaults($defaults);
+      }
+    }
     if ($formName == "CRM_Event_Form_Registration_Register" && $form->_allowWaitlist) {
       // We allow the user to also specify number of tickets while adding himself on the waitlist.
       // Get the price fields associated with the event.
