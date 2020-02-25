@@ -204,28 +204,6 @@
     if ($formName == "CRM_Event_Form_Registration_Register" && !empty($form->getVar('_participantId'))) {
       // This is a waitlisted registration.
       $defaults = CRM_Waitlisttickets_BAO_WaitListTickets::setWaitlistTickets($form->getVar('_participantId'));
-      $priceInfo = getPriceFieldInfo($form->_eventId);
-      $priceSetId = CRM_Price_BAO_PriceSet::getFor('civicrm_event', $form->_eventId);
-      if (!empty($priceSetId)) {
-        $childPrice = CRM_Core_DAO::executeQuery("SELECT id FROM civicrm_price_field WHERE name LIKE '%Child%' AND price_set_id = %1", [1 => [$priceSetId, "Integer"]])->fetchAll()[0]['id'];
-      }
-      if (!empty($childPrice)) {
-        if (array_key_exists('price_' . $childPrice, $defaults)) {
-          $childPrice = CRM_Core_DAO::singleValueQuery("SELECT participant_count FROM civicrm_wait_list_tickets WHERE participant_id = %1 AND price_field_id = %2",
-            [1 => [$form->getVar('_participantId'), "Integer"], 2 => [$childPrice, "Integer"]]);
-        }
-        $form->assign('waitlistchild', $childPrice);
-      }
-      if (!empty($priceInfo)) {
-        foreach ($priceInfo as $priceField) {
-          if (array_key_exists('price_' . $priceField['id'], $form->_elementIndex)) {
-            $freeze[] = 'price_' . $priceField['id'];
-          }
-        }
-        if (!empty($freeze)) {
-          $form->freeze($freeze);
-        }
-      }
       if (!empty($defaults)) {
         $form->setDefaults($defaults);
       }
@@ -244,6 +222,20 @@
       }
       if ($flag) {
         $errors['_qf_default'] = ts("Please select atleast one of the ticket options");
+      }
+    }
+    if ($formName == "CRM_Event_Form_Registration_Register" && !empty($form->getVar('_participantId'))) {
+      $originalCount = CRM_Waitlisttickets_BAO_WaitListTickets::getWaitlistCount($form->getVar('_participantId'));
+      foreach ($fields as $field => $value) {
+        if (!empty($value) && substr($field, 0, strlen('price_')) === 'price_') {
+          $selectedPriceFields[] = $value;
+        }
+      }
+      if (!empty($selectedPriceFields)) {
+        $participantCount = CRM_Core_DAO::singleValueQuery("SELECT SUM(count) FROM civicrm_price_field_value WHERE id IN (" . implode(',', $selectedPriceFields) . ")");
+        if ($participantCount > $originalCount) {
+          $errors['_qf_default'] = ts("You have selected more than the requested number of seats.");
+        }
       }
     }
   }

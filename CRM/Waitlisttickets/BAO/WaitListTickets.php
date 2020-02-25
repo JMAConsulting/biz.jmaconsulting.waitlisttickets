@@ -35,9 +35,24 @@ class CRM_Waitlisttickets_BAO_WaitListTickets extends CRM_Waitlisttickets_DAO_Wa
     $waitlist->find();
     $selectedTickets = [];
     while ($waitlist->fetch()) {
-      $selectedTickets['price_' . $waitlist->price_field_id] = $waitlist->price_field_value_id;  
+      // Check HTML type
+      $html = CRM_Core_DAO::singleValueQuery("SELECT html_type FROM civicrm_price_field WHERE id = %1", [1 => [$waitlist->price_field_id, "Integer"]]);
+      if ($html != "Text") {
+        $selectedTickets['price_' . $waitlist->price_field_id] = $waitlist->price_field_value_id;
+      }
+      else {
+        $selectedTickets['price_' . $waitlist->price_field_id] = $waitlist->participant_count;
+      }
     }
     return $selectedTickets;
+  }
+
+  public static function getWaitlistCount($pid) {
+    $count = CRM_Core_DAO::singleValueQuery("SELECT SUM(participant_count) FROM civicrm_wait_list_tickets WHERE participant_id = %1", [1 => [$pid, "Integer"]]);
+    if (!empty($count)) {
+      return $count;
+    }
+    return 0;
   }
 
   public static function getWaitlistTickets($pid) {
