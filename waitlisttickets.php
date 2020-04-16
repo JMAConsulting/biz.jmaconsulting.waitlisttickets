@@ -193,6 +193,11 @@
           $ticketOptions[] = $key;
         }
         if (!empty($ticketOptions)) {
+          $ticketLabel = ts("Number of tickets");
+          if (\Drupal::languageManager()->getCurrentLanguage()->getId() == 'fr') {
+            $ticketLabel = ts("Nombre de billets");
+          }
+          $form->assign('ticketLabel', $ticketLabel);
           $form->assign('ticketOptions', $ticketOptions);
           $form->_ticketOptions = $ticketOptions;
           CRM_Core_Region::instance('page-body')->add(array(
