@@ -5,7 +5,7 @@
             <td class="label"><label for="waitlist_price_field">{$ticketLabel}</label></td><td>
                 <table>
                     {foreach from=$ticketOptions item=ticketOption}
-                        <tr><td><div class="label">{$form.$ticketOption.label}</div></td><td>{$form.$ticketOption.html}</td></tr>
+                        <tr><td>{$form.$ticketOption.html}</td></tr>
                     {/foreach}
                 </table>
             </td>
@@ -17,7 +17,7 @@
 {literal}
     <script type="text/javascript">
         CRM.$(function($) {
-            $('#waitlistPriceFields').insertAfter('.custom_post-section');
+            $('#waitlistPriceFields').insertAfter('.custom_pre-section');
         });
     </script>
 {/literal}

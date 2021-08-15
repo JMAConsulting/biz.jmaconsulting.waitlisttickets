@@ -165,11 +165,6 @@
       $priceFields = getPriceFieldInfo($form->_eventId);
       if (!empty($priceFields)) {
         foreach ($priceFields as $priceField) {
-          // We check if the price field has a limit specified.
-          $isAllowed = CRM_Core_DAO::singleValueQuery("SELECT max_value FROM civicrm_max_tickets WHERE price_field_id = %1 AND event_id = %2", [1 => [$priceField["id"], "Integer"], 2 => [$form->_eventId, "Integer"]]);
-          if ($isAllowed === '0') {
-            continue;
-          }
           $key = "price_field_id_" . $priceField["id"];
           $selectOptions = [];
           if (in_array($priceField["html_type"], ["Select", "Radio", "CheckBox"])) {
@@ -194,9 +189,6 @@
         }
         if (!empty($ticketOptions)) {
           $ticketLabel = ts("Number of tickets");
-          if (\Drupal::languageManager()->getCurrentLanguage()->getId() == 'fr') {
-            $ticketLabel = ts("Nombre de billets");
-          }
           $form->assign('ticketLabel', $ticketLabel);
           $form->assign('ticketOptions', $ticketOptions);
           $form->_ticketOptions = $ticketOptions;
@@ -268,7 +260,7 @@
             if (in_array($priceField["html_type"], ["Select", "Radio", "CheckBox"])) {
               // We get the participant count of the price field value.
               $sql = CRM_Core_DAO::executeQuery("SELECT id, count FROM civicrm_price_field_value WHERE name = %1 AND price_field_id = %2",
-                [1 => [$params["price_field_id_" . $priceField["id"]], "String"], 2 => [$priceField["id"], "Integer"]])->fetchAll();
+                [1 => [$params['price_field_id_' . $priceField['id']], "String"], 2 => [$priceField["id"], "Integer"]])->fetchAll();
               if (!empty($sql[0])) {
                 $priceParams[] = [
                   'price_field_id' => $priceField['id'],
@@ -284,6 +276,32 @@
                 'price_field_id' => $priceField['id'],
                 'price_field_value_id' => CRM_Core_DAO::singleValueQuery("SELECT id FROM civicrm_price_field_value WHERE price_field_id = %1", [1 => [$priceField['id'], 'Integer']]),
                 'participant_count' => $params['price_field_id_' . $priceField['id']],
+                'event_id' => $form->getVar('_eventId'),
+                'participant_id' => $form->getVar('_participantId'),
+              ];
+            }
+          }
+          elseif (!empty($params['bypass_payment']) && !empty($params['price_' . $priceField['id']])) {
+            if (in_array($priceField["html_type"], ["Select", "Radio", "CheckBox"])) {
+              $priceValueFieldID = is_array($params['price_' . $priceField['id']]) ? key($params['price_' . $priceField['id']]) : $params['price_' . $priceField['id']];
+              // We get the participant count of the price field value.
+              $sql = CRM_Core_DAO::executeQuery("SELECT count FROM civicrm_price_field_value WHERE id = %1 AND price_field_id = %2",
+                [1 => [$priceValueFieldID, "Integer"], 2 => [$priceField["id"], "Integer"]])->fetchAll();
+              if (!empty($sql[0])) {
+                $priceParams[] = [
+                  'price_field_id' => $priceField['id'],
+                  'price_field_value_id' => $priceValueFieldID,
+                  'participant_count' => $sql[0]['count'],
+                  'event_id' => $form->getVar('_eventId'),
+                  'participant_id' => $form->getVar('_participantId'),
+                ];
+              }
+            }
+            else {
+              $priceParams[] = [
+                'price_field_id' => $priceField['id'],
+                'price_field_value_id' => CRM_Core_DAO::singleValueQuery("SELECT id FROM civicrm_price_field_value WHERE price_field_id = %1", [1 => [$priceField['id'], 'Integer']]),
+                'participant_count' => $params['price_' . $priceField['id']],
                 'event_id' => $form->getVar('_eventId'),
                 'participant_id' => $form->getVar('_participantId'),
               ];
