@@ -176,7 +176,6 @@
               foreach ($fieldOptions as $fieldOption) {
                 $selectOptions[$fieldOption['name']] = $fieldOption['label'];
               }
-              $selectOptions = $selectOptions + [0 => ts('None')];
             }
           }
           if ($priceField["html_type"] == "Radio") {

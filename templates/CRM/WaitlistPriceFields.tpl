@@ -17,6 +17,7 @@
 {literal}
     <script type="text/javascript">
         CRM.$(function($) {
+            $("#phone-Primary-1").insertAfter("#phone_ext-Primary-1");
             $('#waitlistPriceFields').insertAfter('.custom_pre-section');
         });
     </script>
