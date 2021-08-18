@@ -104,7 +104,7 @@ class CRM_Waitlisttickets_ExtensionUtil {
            event.registration_end_date,
            event.end_date,
            event.expiration_time,
-           event.requires_approval
+           event.requires_approval,
            wlt.participant_count
      FROM  civicrm_wait_list_tickets wlt
      INNER JOIN civicrm_participant participant ON participant.id = wlt.participant_id
@@ -180,6 +180,7 @@ class CRM_Waitlisttickets_ExtensionUtil {
       }
       //cron 1 end.
 
+CRM_Core_Error::debug('a', $participantDetails);
       //cron 2. lets move participants from waiting list to pending status
       foreach ($participantDetails as $participantId => $values) {
         //process the additional participant at the time of
@@ -209,7 +210,7 @@ class CRM_Waitlisttickets_ExtensionUtil {
                 $allIds = array_merge($allIds, $additionalIds);
               }
               $pClause = ' participant.id IN ( ' . implode(' , ', $allIds) . ' )';
-              $requiredSpaces = CRM_Event_BAO_Event::eventTotalSeats($values['event_id'], $pClause);
+              $requiredSpaces = self::eventTotalSeats($values['event_id'], $pClause);
 
               //need to check as to see if event has enough speces
               if (($requiredSpaces <= $eventOpenSpaces && $values['participant_count'] <= $requiredSpaces) || ($eventOpenSpaces === NULL)) {
@@ -277,6 +278,26 @@ class CRM_Waitlisttickets_ExtensionUtil {
     }
 
     return ['is_error' => 0, 'messages' => $returnMessages];
+  }
+
+  public static function eventTotalSeats($eventId, $extraWhereClause = NULL) {
+    if (empty($eventId)) {
+      return 0;
+    }
+
+    $extraWhereClause = trim($extraWhereClause);
+    if (!empty($extraWhereClause)) {
+      $extraWhereClause = " AND ( {$extraWhereClause} )";
+    }
+
+    $query = "
+    SELECT  participant_count
+      FROM  civicrm_wait_list_tickets wlt
+     WHERE  ( wlt.event_id = %1 )
+            {$extraWhereClause}
+  GROUP BY  wlt.event_id";
+
+    return (int) CRM_Core_DAO::singleValueQuery($query, [1 => [$eventId, 'Positive']]);
   }
 
 }
