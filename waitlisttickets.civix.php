@@ -209,8 +209,10 @@ CRM_Core_Error::debug('a', $participantDetails);
               if (!empty($additionalIds)) {
                 $allIds = array_merge($allIds, $additionalIds);
               }
-              $pClause = ' participant.id IN ( ' . implode(' , ', $allIds) . ' )';
+              $pClause = ' participant_id IN ( ' . implode(' , ', $allIds) . ' )';
+              CRM_Core_DAO::disableFullGroupByMode();
               $requiredSpaces = self::eventTotalSeats($values['event_id'], $pClause);
+              CRM_Core_DAO::reenableFullGroupByMode();
 
               //need to check as to see if event has enough speces
               if (($requiredSpaces <= $eventOpenSpaces && $values['participant_count'] <= $requiredSpaces) || ($eventOpenSpaces === NULL)) {
