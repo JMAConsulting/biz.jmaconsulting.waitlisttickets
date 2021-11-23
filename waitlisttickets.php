@@ -213,8 +213,8 @@
         $form->setDefaults($defaults);
       }
     }
-    if ($formName == "CRM_Event_Form_Participant" && !empty($form->getParticipantID())) {
-      $defaults = CRM_Waitlisttickets_BAO_WaitListTickets::setWaitlistTickets($form->getParticipantID());
+    if ($formName == "CRM_Event_Form_Participant" && !empty($form->get_template_vars('participantId'))) {
+      $defaults = CRM_Waitlisttickets_BAO_WaitListTickets::setWaitlistTickets($form->get_template_vars('participantId'));
       if (!empty($defaults)) {
         $form->setDefaults($defaults);
       }
@@ -236,12 +236,12 @@
       }
     }
     if (($formName == "CRM_Event_Form_Registration_Register" && !empty($form->getVar('_participantId'))) ||
-      ($formName == "CRM_Event_Form_Participant" && !empty($form->getParticipantID()))) {
+      ($formName == "CRM_Event_Form_Participant" && !empty($form->get_template_vars('participantId')))) {
       if ($formName === "CRM_Event_Form_Registration_Register") {
         $originalCount = CRM_Waitlisttickets_BAO_WaitListTickets::getWaitlistCount($form->getVar('_participantId'));
       }
       elseif ($formName === "CRM_Event_Form_Participant") {
-        $originalCount = CRM_Waitlisttickets_BAO_WaitListTickets::getWaitlistCount($form->getParticipantID());
+        $originalCount = CRM_Waitlisttickets_BAO_WaitListTickets::getWaitlistCount($form->get_template_vars('participantId'));
       }
       foreach ($fields as $field => $value) {
         if (!empty($value) && substr($field, 0, strlen('price_')) === 'price_') {
