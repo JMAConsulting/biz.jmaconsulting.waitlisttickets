@@ -239,6 +239,7 @@
       ($formName == "CRM_Event_Form_Participant" && !empty($form->getParticipantID()))) {
       if ($formName === "CRM_Event_Form_Registration_Register") {
         $originalCount = CRM_Waitlisttickets_BAO_WaitListTickets::getWaitlistCount($form->getVar('_participantId'));
+      }
       elseif ($formName === "CRM_Event_Form_Participant") {
         $originalCount = CRM_Waitlisttickets_BAO_WaitListTickets::getWaitlistCount($form->getParticipantID());
       }
