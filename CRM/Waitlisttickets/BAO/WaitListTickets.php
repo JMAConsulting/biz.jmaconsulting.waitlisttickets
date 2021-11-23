@@ -48,9 +48,19 @@ class CRM_Waitlisttickets_BAO_WaitListTickets extends CRM_Waitlisttickets_DAO_Wa
   }
 
   public static function getWaitlistCount($pid) {
-    $count = CRM_Core_DAO::singleValueQuery("SELECT SUM(participant_count) FROM civicrm_wait_list_tickets WHERE participant_id = %1", [1 => [$pid, "Integer"]]);
-    if (!empty($count)) {
-      return $count;
+    $isWaitlist = CRM_Core_DAO::singleValueQuery("SELECT 1 FROM civicrm_wait_list_tickets WHERE participant_id = %1", [1 => [$pid, "Integer"]]);
+    if ($isWaitlist) {
+      $count = CRM_Core_DAO::singleValueQuery("SELECT SUM(participant_count) FROM civicrm_wait_list_tickets WHERE participant_id = %1", [1 => [$pid, "Integer"]]);
+      if (!empty($count)) {
+        return $count;
+      }
+    }
+    else {
+      // This shouldn't happen, but check the line item table as well for participant fee selections.
+      $count = CRM_Core_DAO::singleValueQuery("SELECT SUM(participant_count) FROM civicrm_line_item WHERE entity_id = %1 AND entity_table = 'civicrm_participant'", [1 => [$pid, "Integer"]]);
+      if (!empty($count)) {
+        return $count;
+      }
     }
     return 0;
   }
