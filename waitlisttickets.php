@@ -213,6 +213,12 @@
         $form->setDefaults($defaults);
       }
     }
+    if ($formName == "CRM_Event_Form_Participant" && !empty($form->get_template_vars('participantId'))) {
+      $defaults = CRM_Waitlisttickets_BAO_WaitListTickets::setWaitlistTickets($form->get_template_vars('participantId'));
+      if (!empty($defaults)) {
+        $form->setDefaults($defaults);
+      }
+    }
   }
 
   function waitlisttickets_civicrm_validateForm($formName, &$fields, &$files, &$form, &$errors) {
@@ -229,8 +235,14 @@
         $errors['_qf_default'] = ts("Please select atleast one of the ticket options");
       }
     }
-    if ($formName == "CRM_Event_Form_Registration_Register" && !empty($form->getVar('_participantId'))) {
-      $originalCount = CRM_Waitlisttickets_BAO_WaitListTickets::getWaitlistCount($form->getVar('_participantId'));
+    if (($formName == "CRM_Event_Form_Registration_Register" && !empty($form->getVar('_participantId'))) ||
+      ($formName == "CRM_Event_Form_Participant" && !empty($form->get_template_vars('participantId')))) {
+      if ($formName === "CRM_Event_Form_Registration_Register") {
+        $originalCount = CRM_Waitlisttickets_BAO_WaitListTickets::getWaitlistCount($form->getVar('_participantId'));
+      }
+      elseif ($formName === "CRM_Event_Form_Participant") {
+        $originalCount = CRM_Waitlisttickets_BAO_WaitListTickets::getWaitlistCount($form->get_template_vars('participantId'));
+      }
       foreach ($fields as $field => $value) {
         if (!empty($value) && substr($field, 0, strlen('price_')) === 'price_') {
           $selectedPriceFields[] = $value;
