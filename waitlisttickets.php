@@ -17,9 +17,6 @@
    *
    * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_xmlMenu
    */
-  function waitlisttickets_civicrm_xmlMenu(&$files) {
-    _waitlisttickets_civix_civicrm_xmlMenu($files);
-  }
 
   /**
    * Implements hook_civicrm_install().
@@ -35,18 +32,12 @@
    *
    * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_postInstall
    */
-  function waitlisttickets_civicrm_postInstall() {
-    _waitlisttickets_civix_civicrm_postInstall();
-  }
 
   /**
    * Implements hook_civicrm_uninstall().
    *
    * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_uninstall
    */
-  function waitlisttickets_civicrm_uninstall() {
-    _waitlisttickets_civix_civicrm_uninstall();
-  }
 
   /**
    * Implements hook_civicrm_enable().
@@ -62,18 +53,12 @@
    *
    * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_disable
    */
-  function waitlisttickets_civicrm_disable() {
-    _waitlisttickets_civix_civicrm_disable();
-  }
 
   /**
    * Implements hook_civicrm_upgrade().
    *
    * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_upgrade
    */
-  function waitlisttickets_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
-    return _waitlisttickets_civix_civicrm_upgrade($op, $queue);
-  }
 
   /**
    * Implements hook_civicrm_managed().
@@ -83,9 +68,6 @@
    *
    * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_managed
    */
-  function waitlisttickets_civicrm_managed(&$entities) {
-    _waitlisttickets_civix_civicrm_managed($entities);
-  }
 
   /**
    * Implements hook_civicrm_caseTypes().
@@ -96,9 +78,6 @@
    *
    * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_caseTypes
    */
-  function waitlisttickets_civicrm_caseTypes(&$caseTypes) {
-    _waitlisttickets_civix_civicrm_caseTypes($caseTypes);
-  }
 
   /**
    * Implements hook_civicrm_angularModules().
@@ -110,18 +89,12 @@
    *
    * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_angularModules
    */
-  function waitlisttickets_civicrm_angularModules(&$angularModules) {
-    _waitlisttickets_civix_civicrm_angularModules($angularModules);
-  }
 
   /**
    * Implements hook_civicrm_alterSettingsFolders().
    *
    * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_alterSettingsFolders
    */
-  function waitlisttickets_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
-    _waitlisttickets_civix_civicrm_alterSettingsFolders($metaDataFolders);
-  }
 
   /**
    * Implements hook_civicrm_entityTypes().
@@ -130,16 +103,10 @@
    *
    * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_entityTypes
    */
-  function waitlisttickets_civicrm_entityTypes(&$entityTypes) {
-    _waitlisttickets_civix_civicrm_entityTypes($entityTypes);
-  }
 
   /**
    * Implements hook_civicrm_thems().
    */
-  function waitlisttickets_civicrm_themes(&$themes) {
-    _waitlisttickets_civix_civicrm_themes($themes);
-  }
 
   function waitlisttickets_civicrm_alterReportVar($type, &$vars, &$form) {
     if ('CRM_AOReports_Form_Report_ExtendedParticipantListing' == get_class($form)) {
@@ -349,9 +316,8 @@
    *
    * @link https://docs.civicrm.org/dev/en/latest/hooks/hook_civicrm_preProcess
    *
-  function waitlisttickets_civicrm_preProcess($formName, &$form) {
 
-  } // */
+ // */
 
   /**
    * Implements hook_civicrm_navigationMenu().
